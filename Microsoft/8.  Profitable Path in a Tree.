@@ -1,0 +1,45 @@
+// https://leetcode.com/problems/most-profitable-path-in-a-tree/
+// 8.  Profitable Path in a Tree.
+
+class Solution {
+    public int mostProfitablePath(int[][] edges, int bob, int[] amount) {
+        List<List<Integer>> graph = new ArrayList<>();
+        int n = edges.length+1;
+        for(int i=0; i<n; i++) graph.add(new ArrayList<>());
+        for(int[] edge:edges){
+            graph.get(edge[0]).add(edge[1]);
+            graph.get(edge[1]).add(edge[0]);
+        }
+        int[] par = new int[n];
+        int[] time = new int[n];
+        // calculate the dist from 0 to every other node and get the parent node of every node
+        dfsFrom0(graph, 0, 0, 0, par, time);
+        // get bob's path
+        bobPath(bob, 0, par, time, amount);
+        // find the maximum net income
+        return dfs(graph, 0, 0, 0, amount);
+    }
+    public void bobPath(int bob, int dist, int[] par, int[] time, int[] amount){
+        if(bob==0) return;
+        if(dist<time[bob]) amount[bob] = 0;
+        else if(dist==time[bob]) amount[bob]/=2;
+        bobPath(par[bob], dist+1, par, time, amount);
+    }
+    public void dfsFrom0(List<List<Integer>> graph, int cur, int p, int dist, int[] par, int[] time){
+        time[cur]=dist;
+        par[cur]=p;
+        for(int next:graph.get(cur)){
+            if(next==p) continue;
+            dfsFrom0(graph, next, cur, dist+1, par, time);
+        }
+    }
+    public int dfs(List<List<Integer>> graph, int cur, int p, int curNet, int[] amount){
+        int maxNet = Integer.MIN_VALUE;
+        for(int next:graph.get(cur)){
+            if(next==p) continue;
+            maxNet = Math.max(maxNet, dfs(graph, next, cur, curNet, amount));
+        }
+        if(maxNet==Integer.MIN_VALUE) return amount[cur];
+        else return maxNet+amount[cur];
+    }
+}
