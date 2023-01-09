@@ -1,0 +1,36 @@
+//207. Course Schedule
+
+class Solution {
+    public boolean canFinish(int numCourses, int[][] prerequisites) {
+        Map<Integer, List<Integer>> adj = new HashMap<>();
+        int[] indegree = new int[numCourses];
+        int count = 0;
+        for(int i = 0; i < prerequisites.length; i++){
+            int first = prerequisites[i][0];
+            int second = prerequisites[i][1];
+            if(!adj.containsKey(first))
+                adj.put(first, new ArrayList<Integer>());
+            adj.get(first).add(second);
+            indegree[second] ++;
+        }
+        LinkedList<Integer> q = new LinkedList<>();
+        for(int i = 0; i < numCourses; i++)
+            if(indegree[i] == 0)
+                q.add(i);
+        while(!q.isEmpty()){
+            Integer pre = q.poll();
+            System.out.println(pre);
+            count ++;
+            List<Integer> temp = null;
+            if(adj.containsKey(pre)){
+                temp = adj.get(pre);
+                for(Integer num : temp){
+                    indegree[num] --;
+                    if(indegree[num] == 0)
+                        q.add(num);
+                }
+            }
+        }
+        return count == numCourses;
+    }
+}
